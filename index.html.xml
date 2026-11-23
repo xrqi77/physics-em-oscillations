@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Глава 2. Электромагнитные колебания — Интерактивная Лаборатория (§3–§6)</title>
+  <style>
+    :root {
+      --bg-dark: #090D16;
+      --bg-panel: #111827;
+      --bg-light: #F8FAFC;
+      --ink-dark: #0F172A;
+      --ink-light: #F1F5F9;
+      --muted: #94A3B8;
+      --cyan: #06B6D4;
+      --violet: #8B5CF6;
+      --amber: #F59E0B;
+      --emerald: #10B981;
+      --rose: #F43F5E;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--ink-light);
+      scroll-behavior: smooth;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .hidden { display: none !important; }
+    a { color: #38BDF8; text-decoration: underline; }
+
+    /* Верхняя стеклянная навигация */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(9, 13, 22, 0.86);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .topbar-inner {
+      max-width: 1240px; margin: 0 auto;
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px;
+    }
+    .logo-badge {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px;
+    }
+    .nav-pills {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .nav-pill {
+      padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+      border: 1px solid rgba(148,163,184,0.25); background: transparent; color: #CBD5E1;
+      cursor: pointer; transition: 0.2s;
+    }
+    .nav-pill:hover, .nav-pill.active {
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      color: #fff; border-color: transparent;
+    }
+
+    /* Блок 1: Асимметричный Hero с живой SVG-схемой LC-контура */
+    .hero {
+      background: radial-gradient(circle at 15% 20%, rgba(6,182,212,0.16), transparent 45%),
+                  radial-gradient(circle at 85% 30%, rgba(139,92,246,0.18), transparent 45%);
+      padding: 44px 20px 52px;
+      border-bottom: 1px solid rgba(148,163,184,0.15);
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 28px; align-items: center;
+    }
+    @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 44px); line-height: 1.15; margin: 12px 0;
+      background: linear-gradient(95deg, #FFFFFF 0%, #67E8F9 50%, #C4B5FD 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .tag {
+      display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      background: rgba(6,182,212,0.15); color: #67E8F9; border: 1px solid rgba(6,182,212,0.35);
+    }
+    .hero-card {
+      background: rgba(17, 24, 39, 0.85); border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 20px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+
+    /* Блок 2 (§3): Горизонтальная лента времени (Timeline) — светлая контрастная секция */
+    .light-band {
+      background: var(--bg-light); color: var(--ink-dark);
+      padding: 48px 20px;
+    }
+    .light-band a { color: #4F46E5; }
+    .timeline-steps {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 22px 0;
+    }
+    @media (max-width: 850px) { .timeline-steps { grid-template-columns: repeat(2, 1fr); } }
+    .step-btn {
+      padding: 12px; border-radius: 12px; border: 2px solid #CBD5E1; background: #fff;
+      cursor: pointer; text-align: left; transition: 0.2s; color: var(--ink-dark);
+    }
+    .step-btn.active {
+      border-color: #4F46E5; background: #EEF2FF; box-shadow: 0 6px 18px rgba(79,70,229,0.16);
+    }
+    .phase-detail {
+      background: #fff; border-radius: 16px; padding: 22px; border: 1px solid #CBD5E1;
+      display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 20px; align-items: center;
+    }
+    @media (max-width: 800px) { .phase-detail { grid-template-columns: 1fr; } }
+
+    /* Блок 3 (§4): Тёмная секция с 3 разными колонками-ступенями (Затухание / Резонанс / Авто) */
+    .dark-band { padding: 48px 20px; background: #0B1120; }
+    .tri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 900px) { .tri-grid { grid-template-columns: 1fr; } }
+    .glass-box {
+      background: rgba(30, 41, 59, 0.55); border: 1px solid rgba(148,163,184,0.2);
+      border-radius: 16px; padding: 20px;
+    }
+    .auto-flow {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center;
+    }
+    .flow-node {
+      flex: 1; min-width: 170px; padding: 12px; border-radius: 12px;
+      border: 1px solid rgba(16,185,129,0.35); background: rgba(16,185,129,0.08);
+      color: #ECFDF5; cursor: pointer; font-weight: 600; font-size: 13px; text-align: left;
+    }
+    .flow-node.active { background: var(--emerald); color: #022C22; }
+
+    /* Блок 4 (§5): Интерактивная доска аналогий (Сплит-карточки, без скучной таблицы) */
+    .split-band {
+      background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%);
+      padding: 48px 20px; border-top: 1px solid rgba(139,92,246,0.3);
+    }
+    .analogy-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    @media (max-width: 768px) { .analogy-grid { grid-template-columns: 1fr; } }
+    .analogy-pair {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;
+      background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 12px; padding: 12px 14px;
+    }
+
+    /* Блок 5 (§6 + Симулятор): Неоновый осциллограф */
+    .sim-band { padding: 48px 20px; background: #050811; }
+    .sim-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 20px; }
+    @media (max-width: 920px) { .sim-layout { grid-template-columns: 1fr; } }
+    .scope-box {
+      background: #031214; border: 2px solid var(--cyan); border-radius: 16px;
+      height: 370px; position: relative; overflow: hidden;
+      box-shadow: 0 0 30px rgba(6,182,212,0.18);
+    }
+    .scope-hud {
+      position: absolute; top: 10px; left: 12px; right: 12px;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; pointer-events: none;
+    }
+    .hud-chip {
+      background: rgba(3, 18, 20, 0.88); border: 1px solid rgba(6,182,212,0.45);
+      color: #67E8F9; padding: 4px 10px; border-radius: 8px; font-size: 12px;
+    }
+    .ctrl-panel {
+      background: #0F172A; border: 1px solid rgba(148,163,184,0.22);
+      border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--cyan); }
+    input[type="number"], select {
+      width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #334155;
+      background: #090D16; color: #fff; font-size: 13px;
+    }
+    .btn {
+      padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(148,163,184,0.3);
+      background: #1E293B; color: #F8FAFC; font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .btn.primary { background: linear-gradient(90deg, var(--cyan), #3B82F6); border-color: transparent; color: #041318; }
+    .btn.emerald { background: var(--emerald); border-color: transparent; color: #022C22; }
+
+    /* Блок 6: Практика, калькулятор, тест и реальная жизнь */
+    .practice-band { padding: 48px 20px; background: #0F172A; }
+    .real-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+    @media (max-width: 1000px) { .real-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .real-grid { grid-template-columns: 1fr; } }
+    .real-card {
+      background: #1E293B; border-radius: 14px; padding: 16px;
+      border-top: 3px solid var(--amber);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- НАВИГАЦИЯ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="logo">
+        <div class="logo-badge mono">LC</div>
+        <span>Электромагнитные колебания <span style="color:var(--cyan); font-weight:500;">(§3–§6)</span></span>
+      </div>
+      <nav class="nav-pills">
+        <button class="nav-pill active" onclick="jumpTo('sec-s3', this)">§3 Контур</button>
+        <button class="nav-pill" onclick="jumpTo('sec-s4', this)">§4 Автоколебания</button>
+        <button class="nav-pill" onclick="jumpTo('sec-s5', this)">§5 Аналогии</button>
+        <button class="nav-pill" onclick="jumpTo('sec-sim', this)">§6 Осциллограф</button>
+        <button class="nav-pill" onclick="jumpTo('sec-prac', this)">Практика и Тест</button>
+        <button class="nav-pill" onclick="jumpTo('sec-real', this)">В жизни</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- БЛОК 1: HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="tag mono">Раздел I. КОЛЕБАНИЯ • Глава 2 • Стр. 21–45</span>
+        <h1>Электромагнитные колебания и резонанс</h1>
+        <p style="color:#CBD5E1; font-size:15px; max-width:600px;">
+          Полный разбор всех четырёх параграфов главы: от формулы Томсона и превращения энергии в идеальном <span class="mono">LC</span>-контуре до автогенераторов, таблицы аналогий с механикой и живого двухканального осциллографа.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;">
+          <button class="btn primary" onclick="jumpTo('sec-sim')">⚡ Запустить осциллограф</button>
+          <button class="btn" onclick="jumpTo('sec-prac')">🧮 Решить задачи и тест</button>
+        </div>
+      </div>
+
+      <!-- Живая SVG-схема LC-контура с формулой Томсона -->
+      <div class="hero-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <strong style="font-size:14px; color:#67E8F9;">Формула Томсона (идеальный контур)</strong>
+          <span class="mono" style="font-size:12px; color:var(--amber);">R = 0</span>
+        </div>
+        <svg viewBox="0 0 320 150" style="width:100%; height:auto; background:#090D16; border-radius:12px; border:1px solid #1E293B;">
+          <!-- Провода контура -->
+          <rect x="40" y="25" width="240" height="100" rx="12" fill="none" stroke="#475569" stroke-width="3"/>
+          <!-- Конденсатор слева -->
+          <rect x="26" y="60" width="28" height="30" fill="#090D16"/>
+          <line x1="22" y1="66" x2="58" y2="66" stroke="#06B6D4" stroke-width="4"/>
+          <line x1="22" y1="84" x2="58" y2="84" stroke="#06B6D4" stroke-width="4"/>
+          <text x="14" y="54" fill="#67E8F9" font-size="13" font-weight="bold">C (+q / −q)</text>
+          <!-- Катушка справа -->
+          <rect x="268" y="45" width="24" height="60" fill="#090D16"/>
+          <path d="M280 45 C296 45, 296 60, 280 60 C296 60, 296 75, 280 75 C296 75, 296 90, 280 90 C296 90, 296 105, 280 105" fill="none" stroke="#A78BFA" stroke-width="3.5"/>
+          <text x="235" y="38" fill="#C4B5FD" font-size="13" font-weight="bold">L (B)</text>
+          <!-- Формула в центре -->
+          <text x="160" y="72" text-anchor="middle" fill="#10B981" font-size="18" font-weight="bold" font-family="monospace">T = 2π√(L·C)</text>
+          <text x="160" y="96" text-anchor="middle" fill="#94A3B8" font-size="12" font-family="monospace">ω₀ = 1 / √(L·C)</text>
+        </svg>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; font-size:12px;" class="mono">
+          <div style="background:#090D16; padding:8px; border-radius:8px; color:#67E8F9;">W_E = q² / (2C)</div>
+          <div style="background:#090D16; padding:8px; border-radius:8px; color:#C4B5FD;">W_B = L·i² / 2</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЛОК 2 (§3): СВЕТЛАЯ СЕКЦИЯ С ТАЙМЛАЙНОМ ЧЕТВЕРТЕЙ ПЕРИОДА -->
+  <section id="sec-s3" class="light-band">
+    <div class="container">
+      <span class="mono" style="color:#4F46E5; font-weight:700; font-size:12px;">§ 3 (стр. 21) • СВОБОДНЫЕ ЭЛЕКТРОМАГНИТНЫЕ КОЛЕБАНИЯ</span>
+      <h2 style="margin:4px 0 8px; font-size:26px;">Как энергия перетекает за один период T?</h2>
+      <p style="color:#475569; font-size:14px; max-width:820px; margin:0;">
+        Свободные колебания возникают после зарядки конденсатора до заряда <span class="mono">qₘ</span> и замыкания на катушку (<a href="https://onlineschool-1.ru/encyclopedia/11-klass/fizika/elektromagnitnye-kolebaniya-sv1/article/" target="_blank" rel="noopener noreferrer">Онлайн-школа №1</a>, <a href="https://interneturok.ru/h/biblioteka/fizika/11-klass/svobodnie-elektromagnitnie-kolebaniya-v-konture/1" target="_blank" rel="noopener noreferrer">InternetUrok</a>). Выберите шаг цикла, чтобы увидеть состояние поля:
+      </p>
+
+      <div class="timeline-steps">
+        <button id="tstep-0" class="step-btn active" onclick="setCycleStep(0)"><div class="mono" style="font-weight:800;">1. t = 0</div><div style="font-size:12px;">Заряд +qₘ</div></button>
+        <button id="tstep-1" class="step-btn" onclick="setCycleStep(1)"><div class="mono" style="font-weight:800;">2. t = T/4</div><div style="font-size:12px;">Макс. ток −Iₘ</div></button>
+        <button id="tstep-2" class="step-btn" onclick="setCycleStep(2)"><div class="mono" style="font-weight:800;">3. t = T/2</div><div style="font-size:12px;">Перезаряд −qₘ</div></button>
+        <button id="tstep-3" class="step-btn" onclick="setCycleStep(3)"><div class="mono" style="font-weight:800;">4. t = 3T/4</div><div style="font-size:12px;">Макс. ток +Iₘ</div></button>
+        <button id="tstep-4" class="step-btn" onclick="setCycleStep(4)"><div class="mono" style="font-weight:800;">5. t = T</div><div style="font-size:12px;">Полный цикл</div></button>
+      </div>
+
+      <div class="phase-detail">
+        <div>
+          <h3 id="phase-title" style="margin:0 0 8px; color:#4F46E5;">Момент t = 0: Начальная энергия в конденсаторе</h3>
+          <p id="phase-desc" style="margin:0; font-size:14px; color:#334155;">
+            Конденсатор заряжен до максимального значения +qₘ. Ток в катушке равен нулю (i = 0). Вся энергия сосредоточена в электрическом поле конденсатора: W = qₘ²/(2C).
+          </p>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" class="mono">
+          <div style="background:#EEF2FF; padding:12px; border-radius:10px; color:#3730A3;">
+            <div style="font-size:11px;">Электрическое поле</div>
+            <div id="phase-we" style="font-size:18px; font-weight:800;">W_E = 100%</div>
+          </div>
+          <div style="background:#ECFDF5; padding:12px; border-radius:10px; color:#065F46;">
+            <div style="font-size:11px;">Магнитное поле</div>
+            <div id="phase-wb" style="font-size:18px; font-weight:800;">W_B = 0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЛОК 3 (§4): ВЫНУЖДЕННЫЕ КОЛЕБАНИЯ И АВТОКОЛЕБАНИЯ -->
+  <section id="sec-s4" class="dark-band">
+    <div class="container">
+      <span class="mono" style="color:var(--emerald); font-weight:700; font-size:12px;">§ 4 (стр. 30) • ВЫНУЖДЕННЫЕ КОЛЕБАНИЯ И АВТОКОЛЕБАНИЯ</span>
+      <h2 style="margin:4px 0 18px; font-size:26px;">Почему реальный контур затухает и как работает автогенератор?</h2>
+
+      <div class="tri-grid">
+        <div class="glass-box" style="border-top:3px solid var(--rose);">
+          <h3 style="margin-top:0; color:#FDA4AF;">1. Затухающие колебания</h3>
+          <p style="font-size:13px; color:#CBD5E1;">
+            При наличии сопротивления <strong>R > 0</strong> энергия уходит в тепло по закону Джоуля–Ленца (<span class="mono">Q = I²Rt</span>) и на излучение. Амплитуда убывает по экспоненте: <span class="mono">q(t) = qₘ·e^(−βt)cos(ωt)</span>.
+          </p>
+        </div>
+        <div class="glass-box" style="border-top:3px solid var(--cyan);">
+          <h3 style="margin-top:0; color:#67E8F9;">2. Вынужденные и Резонанс</h3>
+          <p style="font-size:13px; color:#CBD5E1;">
+            Колебания под действием внешней ЭДС <span class="mono">e(t) = Eₘcos(ωt)</span>. Когда внешняя частота совпадает с собственной (<span class="mono">ω = ω₀ = 1/√(LC)</span>), наступает <strong>резонанс</strong> — резкий скачок амплитуды тока!
+          </p>
+        </div>
+        <div class="glass-box" style="border-top:3px solid var(--emerald);">
+          <h3 style="margin-top:0; color:#6EE7B7;">3. Автоколебания</h3>
+          <p style="font-size:13px; color:#CBD5E1;">
+            Незатухающие колебания в системе с постоянным источником, где порции энергии дозирует сама система через <strong>положительную обратную связь</strong> (<a href="https://obrazovaka.ru/fizika/avtokolebaniya.html" target="_blank" rel="noopener noreferrer">Образовака</a>).
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-box" style="margin-top:18px;">
+        <div style="font-size:13px; font-weight:700; color:#A7F3D0;">Интерактивная схема генератора незатухающих колебаний (нажмите на узел):</div>
+        <div class="auto-flow">
+          <button id="anode-0" class="flow-node active" onclick="pickAutoNode(0)">🔋 1. Источник питания</button>
+          <button id="anode-1" class="flow-node" onclick="pickAutoNode(1)">🎛 2. Транзистор (ключ)</button>
+          <button id="anode-2" class="flow-node" onclick="pickAutoNode(2)">🧲 3. Контур (L, C)</button>
+          <button id="anode-3" class="flow-node" onclick="pickAutoNode(3)">🔁 4. Обратная связь (L_ос)</button>
+        </div>
+        <div id="anode-info" style="margin-top:12px; font-size:13px; color:#E2E8F0; background:rgba(9,13,22,0.7); padding:12px; border-radius:10px;">
+          <strong>1. Источник постоянного тока:</strong> восполняет потери энергии на нагрев проводов и излучение, поддерживая постоянную амплитуду.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЛОК 4 (§5): АНАЛОГИИ МЕХАНИКИ И ЭЛЕКТРОДИНАМИКИ -->
+  <section id="sec-s5" class="split-band">
+    <div class="container">
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px;">
+        <div>
+          <span class="mono" style="color:#C4B5FD; font-weight:700; font-size:12px;">§ 5 (стр. 36) • ЕДИНСТВО ЗАКОНОВ ПРИРОДЫ</span>
+          <h2 style="margin:4px 0 0; font-size:26px;">Аналогии: Пружинный маятник ↔ LC-контур</h2>
+        </div>
+        <div style="font-size:12px; color:#CBD5E1;">
+          Источники: <a href="https://www.xn--24-6kct3an.xn--p1ai/%D0%A4%D0%B8%D0%B7%D0%B8%D0%BA%D0%B0_11_%D0%BA%D0%BB_%D0%9C%D1%8F%D0%BA%D0%B8%D1%88%D0%B5%D0%B2/32.html" target="_blank" rel="noopener noreferrer">Мякишев, 11 кл.</a> • <a href="https://class-fizika.ru/11_24.html" target="_blank" rel="noopener noreferrer">Класс!ная физика</a>
+        </div>
+      </div>
+
+      <div class="analogy-grid">
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Координата груза</small><div class="mono" style="font-weight:700;">x (м)</div></div>
+          <div style="color:var(--cyan); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Заряд конденсатора</small><div class="mono" style="font-weight:700; color:#67E8F9;">q (Кл)</div></div>
+        </div>
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Скорость груза</small><div class="mono" style="font-weight:700;">v_x = x'(t)</div></div>
+          <div style="color:var(--cyan); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Сила тока</small><div class="mono" style="font-weight:700; color:#67E8F9;">i = q'(t) (А)</div></div>
+        </div>
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Масса (инертность)</small><div class="mono" style="font-weight:700;">m (кг)</div></div>
+          <div style="color:var(--emerald); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Индуктивность</small><div class="mono" style="font-weight:700; color:#6EE7B7;">L (Гн)</div></div>
+        </div>
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Жёсткость пружины</small><div class="mono" style="font-weight:700;">k (Н/м)</div></div>
+          <div style="color:var(--emerald); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Обратная ёмкость</small><div class="mono" style="font-weight:700; color:#6EE7B7;">1 / C (Ф⁻¹)</div></div>
+        </div>
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Потенц. энергия</small><div class="mono" style="font-weight:700;">W_п = kx² / 2</div></div>
+          <div style="color:var(--amber); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Энергия эл. поля</small><div class="mono" style="font-weight:700; color:#FCD34D;">W_E = q² / (2C)</div></div>
+        </div>
+        <div class="analogy-pair">
+          <div><small style="color:#94A3B8;">Кинетич. энергия</small><div class="mono" style="font-weight:700;">W_к = mv² / 2</div></div>
+          <div style="color:var(--amber); font-weight:800;">↔</div>
+          <div><small style="color:#94A3B8;">Энергия магн. поля</small><div class="mono" style="font-weight:700; color:#FCD34D;">W_B = Li² / 2</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЛОК 5 (§6 + СИМУЛЯТОР): ОСЦИЛЛОГРАФ -->
+  <section id="sec-sim" class="sim-band">
+    <div class="container">
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px;">
+        <div>
+          <span class="mono" style="color:var(--cyan); font-weight:700; font-size:12px;">§ 6 (стр. 40) • ГРАФИКИ q(t), i(t) И СИМУЛЯТОР</span>
+          <h2 style="margin:4px 0 0; font-size:26px;">Цифровой осциллограф колебательного контура</h2>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <button id="smode-lc" class="btn primary" onclick="setScopeMode('lc')">§6 Графики q(t) и i(t)</button>
+          <button id="smode-damped" class="btn" onclick="setScopeMode('damped')">§4 Затухание / Авто</button>
+          <button id="smode-res" class="btn" onclick="setScopeMode('res')">§4 Резонанс</button>
+          <button id="smode-ana" class="btn" onclick="setScopeMode('ana')">§5 Маятник ↔ Контур</button>
+        </div>
+      </div>
+
+      <div class="sim-layout">
+        <div>
+          <div class="scope-box">
+            <canvas id="scope-canvas" style="width:100%; height:100%; display:block; cursor:crosshair;"></canvas>
+            <div class="scope-hud mono">
+              <div id="hud-left" class="hud-chip">CH1: q(t) = qₘcos(ω₀t) | CH2: i(t) = −Iₘsin(ω₀t)</div>
+              <div id="hud-right" class="hud-chip">Сдвиг фаз Δφ = π/2 (T/4)</div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px;" class="mono">
+            <div class="glass-box" style="padding:10px;"><small style="color:#94A3B8;">Период T</small><div id="out-T" style="color:#67E8F9; font-weight:700;">6.28 мс</div></div>
+            <div class="glass-box" style="padding:10px;"><small style="color:#94A3B8;">Частота ν</small><div id="out-f" style="color:#6EE7B7; font-weight:700;">159 Гц</div></div>
+            <div class="glass-box" style="padding:10px;"><small style="color:#94A3B8;">Ампл. тока Iₘ</small><div id="out-Im" style="color:#FDA4AF; font-weight:700;">50.0 мА</div></div>
+            <div class="glass-box" style="padding:10px;"><small style="color:#94A3B8;">Энергия W</small><div id="out-W" style="color:#FCD34D; font-weight:700;">12.5 мкДж</div></div>
+          </div>
+        </div>
+
+        <div class="ctrl-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Параметры контура</strong>
+            <div style="display:flex; gap:6px;">
+              <button id="btn-play" class="btn primary" onclick="togglePlay()">⏸ Пауза</button>
+              <button id="btn-sound" class="btn" onclick="toggleAudio()">🔇 Звук</button>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Индуктивность L:</span><span id="val-L" class="mono" style="color:#67E8F9;">10 мГн</span></div>
+            <input id="in-L" type="range" min="2" max="50" value="10" oninput="syncScope()" />
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Ёмкость C:</span><span id="val-C" class="mono" style="color:#6EE7B7;">100 мкФ</span></div>
+            <input id="in-C" type="range" min="10" max="400" step="10" value="100" oninput="syncScope()" />
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Макс. заряд qₘ:</span><span id="val-q" class="mono" style="color:#FDA4AF;">50 мкКл</span></div>
+            <input id="in-q" type="range" min="10" max="150" step="5" value="50" oninput="syncScope()" />
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Сопротивление R:</span><span id="val-R" class="mono" style="color:#FCD34D;">2 Ом</span></div>
+            <input id="in-R" type="range" min="0" max="20" value="2" oninput="syncScope()" />
+          </div>
+          <div style="font-size:12px; color:#94A3B8; background:#090D16; padding:10px; border-radius:10px; border:1px solid #1E293B;">
+            Уравнения §6: <span class="mono" style="color:#67E8F9;">q(t) = qₘcos(ω₀t)</span>, а сила тока <span class="mono" style="color:#C4B5FD;">i(t) = −Iₘsin(ω₀t)</span> опережает заряд на π/2!
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- БЛОК 6: ПРАКТИКУМ, КАЛЬКУЛЯТОР, ТЕСТ И ПРИМЕНЕНИЕ -->
+  <section id="sec-prac" class="practice-band">
+    <div class="container">
+      <h2 style="margin-top:0; font-size:26px;">Практическая часть: Калькулятор, Задачи и Тест ЕНТ</h2>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;" class="prac-grid">
+        <!-- Калькулятор -->
+        <div class="glass-box">
+          <h3 style="margin-top:0; color:#67E8F9;">🧮 Калькулятор формулы Томсона</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div><label style="font-size:12px;">L (мГн)</label><input id="c-L" type="number" value="40" oninput="calcLC()" class="mono"/></div>
+            <div><label style="font-size:12px;">C (мкФ)</label><input id="c-C" type="number" value="25" oninput="calcLC()" class="mono"/></div>
+          </div>
+          <div style="margin-top:10px;"><label style="font-size:12px;">Напряжение Uₘ (В)</label><input id="c-U" type="number" value="100" oninput="calcLC()" class="mono"/></div>
+          <div id="c-out" class="mono" style="margin-top:12px; background:#090D16; padding:12px; border-radius:10px; font-size:13px; color:#6EE7B7;"></div>
+        </div>
+
+        <!-- Задачник -->
+        <div class="glass-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+            <h3 style="margin:0; color:#FCD34D;">📝 Задачи (§3–§6)</h3>
+            <div style="display:flex; gap:4px;">
+              <button class="btn" onclick="loadProb(0)">№1</button>
+              <button class="btn" onclick="loadProb(1)">№2</button>
+              <button class="btn" onclick="loadProb(2)">№3</button>
+              <button class="btn" onclick="loadProb(3)">№4</button>
+            </div>
+          </div>
+          <p id="p-text" style="font-size:13px; color:#E2E8F0; min-height:54px;"></p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input id="p-ans" type="number" step="0.01" placeholder="Ответ..." style="width:130px;" class="mono"/>
+            <button class="btn primary" onclick="checkProb()">Проверить</button>
+            <button class="btn" onclick="toggleSol()">Решение</button>
+          </div>
+          <div id="p-fb" style="margin-top:8px; font-size:12px; font-weight:700;"></div>
+          <div id="p-sol" class="hidden mono" style="margin-top:8px; font-size:12px; background:#090D16; padding:10px; border-radius:8px; white-space:pre-line;"></div>
+        </div>
+      </div>
+
+      <!-- Мини-тест -->
+      <div class="glass-box" style="margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">🎯 Блиц-тест по Главе 2</h3>
+          <span id="q-score" class="tag mono">Счёт: 0 / 5</span>
+        </div>
+        <div id="q-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;"></div>
+      </div>
+
+      <!-- Реальное применение -->
+      <div id="sec-real" style="margin-top:36px;">
+        <h2 style="font-size:24px; margin-bottom:8px;">Применение электромагнитных колебаний в реальной жизни</h2>
+        <div class="real-grid">
+          <div class="real-card">
+            <strong style="color:#67E8F9;">1. Радио, Wi-Fi и 5G</strong>
+            <p style="font-size:12px; color:#CBD5E1; margin-bottom:0;">Входные LC-контуры настраиваются в резонанс на частоту нужной станции, отсекая помехи (<a href="https://www.yaklass.ru/p/fizika/11-klass/obobshchaiushchee-povtorenie-7623730/kolebaniia-i-volny-7623734/re-4b45ffa9-95fb-423fad88de3a" target="_blank" rel="noopener noreferrer">ЯКласс</a>).</p>
+          </div>
+          <div class="real-card" style="border-top-color:var(--emerald);">
+            <strong style="color:#6EE7B7;">2. Беспроводная зарядка Qi</strong>
+            <p style="font-size:12px; color:#CBD5E1; margin-bottom:0;">Два резонансных контура передают энергию от базы к смартфону через переменное магнитное поле.</p>
+          </div>
+          <div class="real-card" style="border-top-color:var(--violet);">
+            <strong style="color:#C4B5FD;">3. Металлодетекторы</strong>
+            <p style="font-size:12px; color:#CBD5E1; margin-bottom:0;">Металл меняет индуктивность L катушки, сдвигая частоту автогенератора T = 2π√(LC).</p>
+          </div>
+          <div class="real-card" style="border-top-color:var(--rose);">
+            <strong style="color:#FDA4AF;">4. Медицинский МРТ</strong>
+            <p style="font-size:12px; color:#CBD5E1; margin-bottom:0;">Резонансные контуры улавливают высокочастотный отклик тканей для построения 3D-снимков.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Навигация
+    function jumpTo(id, btn) {
+      if (btn) {
+        var pills = document.querySelectorAll('.nav-pill');
+        for (var i = 0; i < pills.length; i++) pills[i].classList.remove('active');
+        btn.classList.add('active');
+      }
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Таймлайн §3
+    var PHASES = [
+      { t: 'Момент t = 0: Начальная энергия в конденсаторе', d: 'Конденсатор заряжен до +qₘ. Ток в катушке равен нулю (i = 0). Вся энергия в электрическом поле конденсатора.', we: 'W_E = 100%', wb: 'W_B = 0%' },
+      { t: 'Момент t = T/4: Полная разрядка, максимум тока', d: 'Конденсатор разрядился (q = 0), ток в катушке максимален (|i| = Iₘ). Вся энергия перешла в магнитное поле катушки.', we: 'W_E = 0%', wb: 'W_B = 100%' },
+      { t: 'Момент t = T/2: Перезарядка конденсатора', d: 'За счёт ЭДС самоиндукции конденсатор перезарядился до −qₘ. Ток мгновенно равен нулю.', we: 'W_E = 100%', wb: 'W_B = 0%' },
+      { t: 'Момент t = 3T/4: Обратный максимум тока', d: 'Конденсатор снова пуст (q = 0), а ток течёт в обратном направлении с максимальной силой +Iₘ.', we: 'W_E = 0%', wb: 'W_B = 100%' },
+      { t: 'Момент t = T: Полный период завершён', d: 'Система вернулась в исходное состояние (+qₘ, i = 0). Энергия переходила из C в L и обратно дважды!', we: 'W_E = 100%', wb: 'W_B = 0%' }
+    ];
+    function setCycleStep(idx) {
+      for (var i = 0; i < 5; i++) {
+        var b = document.getElementById('tstep-' + i);
+        if (b) b.className = (i === idx) ? 'step-btn active' : 'step-btn';
+      }
+      document.getElementById('phase-title').textContent = PHASES[idx].t;
+      document.getElementById('phase-desc').textContent = PHASES[idx].d;
+      document.getElementById('phase-we').textContent = PHASES[idx].we;
+      document.getElementById('phase-wb').textContent = PHASES[idx].wb;
+    }
+
+    // Автогенератор §4
+    var ANODES = [
+      '<strong>1. Источник постоянного тока:</strong> восполняет потери энергии на нагрев проводов и излучение.',
+      '<strong>2. Транзистор (ключ):</strong> открывается сигналом обратной связи и подаёт порцию энергии строго в нужной фазе.',
+      '<strong>3. Колебательный контур (L, C):</strong> задаёт собственную частоту автоколебаний ω₀ = 1/√(LC).',
+      '<strong>4. Катушка обратной связи (L_ос):</strong> передаёт управляющий сигнал из контура обратно на транзистор.'
+    ];
+    function pickAutoNode(idx) {
+      for (var i = 0; i < 4; i++) {
+        var b = document.getElementById('anode-' + i);
+        if (b) b.className = (i === idx) ? 'flow-node active' : 'flow-node';
+      }
+      document.getElementById('anode-info').innerHTML = ANODES[idx];
+    }
+
+    // Осциллограф Canvas
+    var st = { mode: 'lc', play: true, L: 10, C: 100, q: 50, R: 2, t: 0, audio: false, ctxA: null, osc: null, gain: null };
+    var cvs, ctx;
+
+    function setScopeMode(m) {
+      st.mode = m;
+      var ms = ['lc', 'damped', 'res', 'ana'];
+      for (var i = 0; i < ms.length; i++) {
+        var b = document.getElementById('smode-' + ms[i]);
+        if (b) b.className = (ms[i] === m) ? 'btn primary' : 'btn';
+      }
+      var hl = document.getElementById('hud-left'), hr = document.getElementById('hud-right');
+      if (m === 'lc') { hl.textContent = 'CH1: q(t) = qₘcos(ω₀t) | CH2: i(t) = −Iₘsin(ω₀t)'; hr.textContent = 'Сдвиг фаз Δφ = π/2'; }
+      if (m === 'damped') { hl.textContent = 'Затухание (Красный) vs Автоколебания (Зелёный)'; hr.textContent = 'β = R / (2L)'; }
+      if (m === 'res') { hl.textContent = 'Резонансная кривая Iₘ(ω)'; hr.textContent = 'Пик при ω = ω₀'; }
+      if (m === 'ana') { hl.textContent = 'Аналогия §5: Маятник (x, v) ↔ LC-контур (q, i)'; hr.textContent = 'm ↔ L, 1/k ↔ C'; }
+    }
+
+    function togglePlay() {
+      st.play = !st.play;
+      document.getElementById('btn-play').textContent = st.play ? '⏸ Пауза' : '▶ Пуск';
+    }
+
+    function syncScope() {
+      st.L = Number(document.getElementById('in-L').value) || 10;
+      st.C = Number(document.getElementById('in-C').value) || 100;
+      st.q = Number(document.getElementById('in-q').value) || 50;
+      st.R = Number(document.getElementById('in-R').value) || 0;
+      document.getElementById('val-L').textContent = st.L + ' мГн';
+      document.getElementById('val-C').textContent = st.C + ' мкФ';
+      document.getElementById('val-q').textContent = st.q + ' мкКл';
+      document.getElementById('val-R').textContent = st.R + ' Ом';
+
+      var L = st.L * 1e-3, C = st.C * 1e-6, qm = st.q * 1e-6;
+      var T = 2 * Math.PI * Math.sqrt(L * C);
+      var f = 1 / T;
+      var Im = qm / Math.sqrt(L * C);
+      var W = (qm * qm) / (2 * C);
+      document.getElementById('out-T').textContent = (T * 1000).toFixed(2) + ' мс';
+      document.getElementById('out-f').textContent = Math.round(f) + ' Гц';
+      document.getElementById('out-Im').textContent = (Im * 1000).toFixed(1) + ' мА';
+      document.getElementById('out-W').textContent = (W * 1e6).toFixed(1) + ' мкДж';
+
+      if (st.audio && st.osc && st.ctxA) {
+        st.osc.frequency.setValueAtTime(Math.min(1200, Math.max(70, f)), st.ctxA.currentTime);
+      }
+    }
+
+    function toggleAudio() {
+      var btn = document.getElementById('btn-sound');
+      if (!st.audio) {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!st.ctxA) st.ctxA = new AC();
+          if (st.ctxA.state === 'suspended') st.ctxA.resume();
+          st.osc = st.ctxA.createOscillator(); st.gain = st.ctxA.createGain();
+          var f = 1 / (2 * Math.PI * Math.sqrt(st.L * 1e-3 * st.C * 1e-6));
+          st.osc.frequency.setValueAtTime(Math.min(1200, Math.max(70, f)), st.ctxA.currentTime);
+          st.gain.gain.setValueAtTime(0.05, st.ctxA.currentTime);
+          st.osc.connect(st.gain); st.gain.connect(st.ctxA.destination);
+          st.osc.start(); st.audio = true; btn.textContent = '🔊 Вкл';
+        } catch (e) {}
+      } else {
+        try { if (st.osc) { st.osc.stop(); st.osc.disconnect(); st.osc = null; } } catch (e) {}
+        st.audio = false; btn.textContent = '🔇 Звук';
+      }
+    }
+
+    function resizeCvs() {
+      if (!cvs) return;
+      var r = cvs.parentElement.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      cvs.width = (r.width || 600) * dpr;
+      cvs.height = (r.height || 370) * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawLoop() {
+      if (st.play) st.t += 0.032;
+      if (cvs && ctx) {
+        var dpr = window.devicePixelRatio || 1;
+        var w = cvs.width / dpr, h = cvs.height / dpr;
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(6,182,212,0.12)'; ctx.lineWidth = 1;
+        for (var x = 0; x < w; x += 38) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (var y = 0; y < h; y += 38) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+        var mid = h * 0.54, pad = 32, pw = w - 64;
+        var k = 14 / Math.sqrt(st.L * st.C * 0.01);
+        var amp = (st.q / 150) * (h * 0.28) + 22;
+
+        if (st.mode === 'lc') {
+          ctx.strokeStyle = 'rgba(148,163,184,0.35)'; ctx.beginPath(); ctx.moveTo(pad, mid); ctx.lineTo(w - pad, mid); ctx.stroke();
+          ctx.strokeStyle = '#06B6D4'; ctx.lineWidth = 2.8; ctx.beginPath();
+          for (var i = 0; i <= pw; i += 3) {
+            var yy = mid - amp * Math.cos((i / pw) * k * Math.PI - st.t);
+            if (i === 0) ctx.moveTo(pad + i, yy); else ctx.lineTo(pad + i, yy);
+          }
+          ctx.stroke();
+          ctx.strokeStyle = '#A78BFA'; ctx.lineWidth = 2.5; ctx.beginPath();
+          for (var j = 0; j <= pw; j += 3) {
+            var y2 = mid - (amp * 0.85) * (-Math.sin((j / pw) * k * Math.PI - st.t));
+            if (j === 0) ctx.moveTo(pad + j, y2); else ctx.lineTo(pad + j, y2);
+          }
+          ctx.stroke();
+        } else if (st.mode === 'damped') {
+          var damp = (st.R / 20) * 3.5;
+          ctx.strokeStyle = '#F43F5E'; ctx.lineWidth = 2.5; ctx.beginPath();
+          for (var d = 0; d <= pw; d += 3) {
+            var u = d / pw;
+            var yd = mid - 55 - (amp * 0.6) * Math.exp(-damp * u) * Math.cos(u * 22 - st.t);
+            if (d === 0) ctx.moveTo(pad + d, yd); else ctx.lineTo(pad + d, yd);
+          }
+          ctx.stroke();
+          ctx.strokeStyle = '#10B981'; ctx.lineWidth = 2.5; ctx.beginPath();
+          for (var a = 0; a <= pw; a += 3) {
+            var u2 = a / pw;
+            var ya = mid + 65 - (amp * 0.55) * Math.cos(u2 * 22 - st.t);
+            if (a === 0) ctx.moveTo(pad + a, ya); else ctx.lineTo(pad + a, ya);
+          }
+          ctx.stroke();
+        } else if (st.mode === 'res') {
+          var rf = Math.max(0.12, (st.R + 2) / 18);
+          ctx.strokeStyle = '#10B981'; ctx.lineWidth = 3; ctx.beginPath();
+          for (var r = 0; r <= pw; r += 3) {
+            var wr = 0.2 + (r / pw) * 1.6, det = wr - 1.0;
+            var ampR = (rf * 0.12) / Math.sqrt(rf * rf * 0.0144 + det * det * 0.25);
+            var yr = (h - 36) - Math.min(1, ampR) * (h - 90);
+            if (r === 0) ctx.moveTo(pad + r, yr); else ctx.lineTo(pad + r, yr);
+          }
+          ctx.stroke();
+        } else {
+          var disp = Math.cos(st.t), mx = w * 0.5 + disp * (w * 0.26);
+          ctx.fillStyle = '#06B6D4'; ctx.fillRect(mx - 22, mid - 22, 44, 44);
+          ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px monospace'; ctx.fillText('m ↔ L', mx - 18, mid + 4);
+        }
+      }
+      requestAnimationFrame(drawLoop);
+    }
+
+    // Калькулятор, Задачник, Тест
+    function calcLC() {
+      var L = Math.max(0.01, Number(document.getElementById('c-L').value) || 40) * 1e-3;
+      var C = Math.max(0.01, Number(document.getElementById('c-C').value) || 25) * 1e-6;
+      var U = Math.max(0.1, Number(document.getElementById('c-U').value) || 100);
+      var T = 2 * Math.PI * Math.sqrt(L * C), om = 1 / Math.sqrt(L * C), qm = C * U, Im = qm * om, W = 0.5 * C * U * U;
+      document.getElementById('c-out').innerHTML =
+        'T = ' + (T * 1000).toFixed(3) + ' мс | ν = ' + (1 / T).toFixed(1) + ' Гц<br>' +
+        'ω₀ = ' + om.toFixed(1) + ' рад/с | qₘ = ' + (qm * 1000).toFixed(2) + ' мКл<br>' +
+        'Iₘ = ' + Im.toFixed(2) + ' А | W = ' + W.toFixed(4) + ' Дж';
+    }
+
+    var PROBS = [
+      { t: 'Во сколько раз вырастет период колебаний T = 2π√(LC), если L увеличить в 9 раз, а C в 4 раза?', a: 6, s: 'T₂/T₁ = √(9 · 4) = √36 = 6 раз.' },
+      { t: 'В контуре L = 0,2 Гн и амплитуда тока Iₘ = 0,5 А. Найдите полную энергию W (в Дж).', a: 0.025, s: 'W = L·Iₘ²/2 = (0,2 · 0,25)/2 = 0,025 Дж.' },
+      { t: 'Резонансная частота контура ν₀ = 500 Гц. Чему равен период колебаний T (в миллисекундах)?', a: 2, s: 'T = 1 / 500 = 0,002 с = 2 мс.' },
+      { t: 'Заряд меняется по закону q(t) = 0,04·cos(100π·t). Найдите период T (в секундах).', a: 0.02, s: 'ω₀ = 100π ⇒ T = 2π / (100π) = 0,02 с.' }
+    ];
+    var curP = 0;
+    function loadProb(i) {
+      curP = i;
+      document.getElementById('p-text').textContent = PROBS[i].t;
+      document.getElementById('p-ans').value = '';
+      document.getElementById('p-fb').textContent = '';
+      document.getElementById('p-sol').classList.add('hidden');
+      document.getElementById('p-sol').textContent = PROBS[i].s;
+    }
+    function checkProb() {
+      var v = parseFloat(String(document.getElementById('p-ans').value).replace(',', '.'));
+      var fb = document.getElementById('p-fb');
+      if (!isNaN(v) && Math.abs(v - PROBS[curP].a) < 0.002) {
+        fb.style.color = '#10B981'; fb.textContent = '✓ Верно! Ответ: ' + PROBS[curP].a;
+      } else {
+        fb.style.color = '#F43F5E'; fb.textContent = '✗ Попробуйте ещё раз.';
+      }
+    }
+    function toggleSol() {
+      var el = document.getElementById('p-sol');
+      el.textContent = PROBS[curP].s; el.classList.toggle('hidden');
+    }
+
+    var QUIZ = [
+      { q: '1. (§3) Формула периода свободных колебаний Томсона:', o: ['T = 2π√(LC)', 'T = 2π/√(LC)', 'T = LC'], c: 0 },
+      { q: '2. (§4) Условие электромагнитного резонанса:', o: ['R = ∞', 'ω = ω₀ = 1/√(LC)', 'q = 0'], c: 1 },
+      { q: '3. (§5) Механический аналог индуктивности L:', o: ['Жёсткость k', 'Масса m', 'Координата x'], c: 1 },
+      { q: '4. (§6) Сдвиг фаз между током i(t) и зарядом q(t):', o: ['0', 'π/2 (четверть периода)', '2π'], c: 1 },
+      { q: '5. (§6) Связь амплитуд тока и заряда:', o: ['Iₘ = qₘ · ω₀', 'Iₘ = qₘ / ω₀', 'Iₘ = qₘ²'], c: 0 }
+    ];
+    var qAns = {};
+    function renderQuiz() {
+      var box = document.getElementById('q-list');
+      var h = '', sc = 0;
+      for (var i = 0; i < QUIZ.length; i++) {
+        var it = QUIZ[i], ch = qAns[i];
+        if (ch === it.c) sc++;
+        h += '<div style="background:#090D16; padding:12px; border-radius:10px; border:1px solid #1E293B;">';
+        h += '<div style="font-size:13px; font-weight:700; margin-bottom:8px;">' + it.q + '</div>';
+        for (var j = 0; j < it.o.length; j++) {
+          var bg = '#1E293B';
+          if (ch !== undefined) {
+            if (j === it.c) bg = '#065F46';
+            else if (j === ch) bg = '#9F1239';
+          }
+          h += '<button onclick="pickQ(' + i + ',' + j + ')" class="btn" style="width:100%; text-align:left; margin-bottom:5px; background:' + bg + ';">' + it.o[j] + '</button>';
+        }
+        h += '</div>';
+      }
+      box.innerHTML = h;
+      document.getElementById('q-score').textContent = 'Счёт: ' + sc + ' / ' + QUIZ.length;
+    }
+    function pickQ(qi, oi) { qAns[qi] = oi; renderQuiz(); }
+
+    function boot() {
+      cvs = document.getElementById('scope-canvas');
+      if (cvs) { ctx = cvs.getContext('2d'); resizeCvs(); window.addEventListener('resize', resizeCvs); requestAnimationFrame(drawLoop); }
+      syncScope(); calcLC(); loadProb(0); renderQuiz();
+    }
+    window.onload = boot;
+  </script>
+</body>
+</html>
